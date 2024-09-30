@@ -117,14 +117,16 @@ piccolo migrations forwards all
 
 ### Reverting migrations
 
-If you want to revert migrations, you should run:
+To reverse the migration, run the following command, specifying the ID of a migration:
 ```bash
+piccolo migrations backwards app_db 2022-09-04T19:44:09
 ```
 
 ### Migration generation
 
 To generate migrations you should run:
 ```bash
+piccolo migrations forwards app_db --auto
 ```
 
 
