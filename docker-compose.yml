@@ -22,7 +22,7 @@ services:
       APP_DB_PASS: app
       APP_DB_BASE: app
       APP_RABBIT_HOST: app-rmq
-      APP_REDIS_HOST: test1-redis
+      APP_REDIS_HOST: app-redis
       APP_ENABLE_TASKIQ: True
     ports:
       - "8000:8000"
@@ -68,7 +68,7 @@ services:
         condition: service_healthy
   redis:
     image: bitnami/redis:6.2.5
-    hostname: "test1-redis"
+    hostname: "app-redis"
     restart: always
     environment:
       ALLOW_EMPTY_PASSWORD: "yes"
