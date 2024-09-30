@@ -1,6 +1,7 @@
 import enum
 from pathlib import Path
 from tempfile import gettempdir
+from typing import Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from yarl import URL
@@ -46,6 +47,20 @@ class Settings(BaseSettings):
     db_base: str = "iot-backend"
     db_echo: bool = False
 
+    # Variables for RabbitMQ
+    rabbit_host: str = "app-rmq"
+    rabbit_port: int = 5672
+    rabbit_user: str = "guest"
+    rabbit_pass: str = "guest"
+    rabbit_vhost: str = "/"
+
+    rabbit_pool_size: int = 2
+    rabbit_channel_pool_size: int = 10
+
+    # Sentry's configuration.
+    sentry_dsn: Optional[str] = None
+    sentry_sample_rate: float = 1.0
+
     @property
     def db_url(self) -> URL:
         """
@@ -60,6 +75,22 @@ class Settings(BaseSettings):
             user=self.db_user,
             password=self.db_pass,
             path=f"/{self.db_base}",
+        )
+
+    @property
+    def rabbit_url(self) -> URL:
+        """
+        Assemble RabbitMQ URL from settings.
+
+        :return: rabbit URL.
+        """
+        return URL.build(
+            scheme="amqp",
+            host=self.rabbit_host,
+            port=self.rabbit_port,
+            user=self.rabbit_user,
+            password=self.rabbit_pass,
+            path=self.rabbit_vhost,
         )
 
     model_config = SettingsConfigDict(

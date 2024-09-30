@@ -17,9 +17,19 @@ services:
       APP_DB_USER: app
       APP_DB_PASS: app
       APP_DB_BASE: app
+      APP_RABBIT_HOST: app-rmq
     ports:
-      # Exposes application port.
-    - "8000:8000"
+      - "8000:8000"
+  taskiq-worker:
+    <<: *main_app
+    labels: []
+    command:
+      - taskiq
+      - worker
+      - app.tkq:broker
+    ports:
+      - "8001:8000"
+
   db:
     image: postgres:16.3-bullseye
     hostname: app-db
@@ -51,7 +61,19 @@ services:
       db:
         condition: service_healthy
 
-
+  rmq:
+    image: rabbitmq:3.9.16-alpine
+    hostname: "app-rmq"
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+      RABBITMQ_DEFAULT_VHOST: "/"
+    healthcheck:
+      test: rabbitmq-diagnostics check_running -q
+      interval: 3s
+      timeout: 3s
+      retries: 50
 
 volumes:
   app-db-data:

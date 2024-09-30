@@ -3,6 +3,9 @@ from typing import AsyncGenerator
 
 from fastapi import FastAPI
 
+from app.services.rabbit.lifespan import init_rabbit, shutdown_rabbit
+from app.tkq import broker
+
 
 @asynccontextmanager
 async def lifespan_setup(
@@ -19,6 +22,12 @@ async def lifespan_setup(
     """
 
     app.middleware_stack = None
+    if not broker.is_worker_process:
+        await broker.startup()
+    init_rabbit(app)
     app.middleware_stack = app.build_middleware_stack()
 
     yield
+    if not broker.is_worker_process:
+        await broker.shutdown()
+    await shutdown_rabbit(app)
