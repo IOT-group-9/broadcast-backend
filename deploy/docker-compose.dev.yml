@@ -10,4 +10,14 @@ services:
     - .:/app/src/
     environment:
       # Enables autoreload.
-      app_RELOAD: "True"
+      TEST1_RELOAD: "True"
+
+  taskiq-worker:
+    volumes:
+      # Adds current directory as volume.
+      - .:/app/src/
+    command:
+      - taskiq
+      - worker
+      - app.tkq:broker
+      - --reload

@@ -57,9 +57,18 @@ class Settings(BaseSettings):
     rabbit_pool_size: int = 2
     rabbit_channel_pool_size: int = 10
 
+    # Variables for Redis
+    redis_host: str = "app-redis"
+    redis_port: int = 6379
+    redis_user: Optional[str] = None
+    redis_pass: Optional[str] = None
+    redis_base: Optional[int] = None
+
     # Sentry's configuration.
     sentry_dsn: Optional[str] = None
     sentry_sample_rate: float = 1.0
+
+    enable_taskiq: bool = True
 
     @property
     def db_url(self) -> URL:
@@ -91,6 +100,25 @@ class Settings(BaseSettings):
             user=self.rabbit_user,
             password=self.rabbit_pass,
             path=self.rabbit_vhost,
+        )
+
+    @property
+    def redis_url(self) -> URL:
+        """
+        Assemble REDIS URL from settings.
+
+        :return: redis URL.
+        """
+        path = ""
+        if self.redis_base is not None:
+            path = f"/{self.redis_base}"
+        return URL.build(
+            scheme="redis",
+            host=self.redis_host,
+            port=self.redis_port,
+            user=self.redis_user,
+            password=self.redis_pass,
+            path=path,
         )
 
     model_config = SettingsConfigDict(

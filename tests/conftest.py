@@ -6,14 +6,19 @@ import pytest
 from aio_pika import Channel
 from aio_pika.abc import AbstractExchange, AbstractQueue
 from aio_pika.pool import Pool
+from fakeredis import FakeServer
+from fakeredis.aioredis import FakeConnection
 from fastapi import FastAPI
 from httpx import AsyncClient
 from piccolo.conf.apps import Finder
 from piccolo.engine.postgres import PostgresEngine
 from piccolo.table import create_tables, drop_tables
+from redis import VERSION
+from redis.asyncio import ConnectionPool
 
 from app.services.rabbit.dependencies import get_rmq_channel_pool
 from app.services.rabbit.lifespan import init_rabbit, shutdown_rabbit
+from app.services.redis.dependency import get_redis_pool
 from app.settings import settings
 from app.web.application import get_app
 
@@ -159,7 +164,29 @@ async def test_queue(
 
 
 @pytest.fixture
+async def fake_redis_pool() -> AsyncGenerator[ConnectionPool, None]:
+    """
+    Get instance of a fake redis.
+
+    :yield: FakeRedis instance.
+    """
+    server = FakeServer(version=VERSION, server_type="redis")
+    server.connected = True
+    pool = ConnectionPool(
+        connection_class=FakeConnection,
+        server=server,
+        version=VERSION,
+        server_type="redis",
+    )
+
+    yield pool
+
+    await pool.disconnect()
+
+
+@pytest.fixture
 def fastapi_app(
+    fake_redis_pool: ConnectionPool,
     test_rmq_pool: Pool[Channel],
 ) -> FastAPI:
     """
@@ -168,6 +195,7 @@ def fastapi_app(
     :return: fastapi app with mocked dependencies.
     """
     application = get_app()
+    application.dependency_overrides[get_redis_pool] = lambda: fake_redis_pool
     application.dependency_overrides[get_rmq_channel_pool] = lambda: test_rmq_pool
     return application
 
