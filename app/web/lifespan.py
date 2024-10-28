@@ -3,6 +3,7 @@ from typing import AsyncGenerator
 
 from fastapi import FastAPI
 
+from app.services.pubsub.lifespan import init_pubsub
 from app.services.rabbit.lifespan import init_rabbit, shutdown_rabbit
 from app.services.redis.lifespan import init_redis, shutdown_redis
 from app.settings import settings
@@ -29,6 +30,7 @@ async def lifespan_setup(
             await broker.startup()
         init_redis(app)
         init_rabbit(app)
+    init_pubsub(app)
     app.middleware_stack = app.build_middleware_stack()
 
     yield
