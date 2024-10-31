@@ -1,11 +1,14 @@
 from fastapi import HTTPException, Request, WebSocket
-from taskiq import TaskiqDepends
+from fastapi_websocket_pubsub import PubSubEndpoint
 
 
-async def get_pubsub(request: Request = None, websocket: WebSocket = None):
+async def get_pubsub(
+    request: Request = None,
+    websocket: WebSocket = None,
+) -> PubSubEndpoint:
+    """Change based on websocket or http."""
     if request:
         return request.app.state.pubsub
-    elif websocket:
+    if websocket:
         return websocket.app.state.pubsub
-    else:
-        raise HTTPException(status_code=400, detail="No Request or WebSocket provided")
+    raise HTTPException(status_code=400, detail="No Request or WebSocket provided")

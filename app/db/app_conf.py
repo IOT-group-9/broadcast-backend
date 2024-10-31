@@ -8,7 +8,14 @@ CURRENT_DIRECTORY = Path(__file__).parent
 APP_CONFIG = AppConfig(
     app_name="app_db",
     migrations_folder_path=str(CURRENT_DIRECTORY / "migrations"),
-    table_classes=table_finder(modules=["app.db.models.dummy_model", "app.db.models.display_model", "app.db.models.map_model", "app.db.models.parking_place_model"]),
+    table_classes=table_finder(
+        modules=[
+            "app.db.models.dummy_model",
+            "app.db.models.display_model",
+            "app.db.models.map_model",
+            "app.db.models.parking_place_model",
+        ],
+    ),
     migration_dependencies=[],
     commands=[],
 )

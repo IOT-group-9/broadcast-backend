@@ -3,7 +3,7 @@ from piccolo.apps.user.tables import BaseUser
 from piccolo.conf.apps import table_finder
 from piccolo_admin.endpoints import create_admin
 
-from app.web.api import docs, dummy, echo, monitoring, rabbit, redis, pubsub
+from app.web.api import docs, dummy, echo, monitoring, pubsub, rabbit, redis
 
 api_router = APIRouter()
 api_router.include_router(monitoring.router)
@@ -17,7 +17,17 @@ api_router.include_router(pubsub.router, prefix="/pubsub", tags=["pubsub"])
 admin_route = Mount(
     path="/admin/",
     app=create_admin(
-        tables=[*table_finder(modules=["app.db.models.dummy_model", "app.db.models.display_model", "app.db.models.map_model", "app.db.models.parking_place_model"]), BaseUser],
+        tables=[
+            *table_finder(
+                modules=[
+                    "app.db.models.dummy_model",
+                    "app.db.models.display_model",
+                    "app.db.models.map_model",
+                    "app.db.models.parking_place_model",
+                ],
+            ),
+            BaseUser,
+        ],
         # Specify a different site name in the
         # admin UI (default Piccolo Admin):
         site_name="My Site Admin",
