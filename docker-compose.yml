@@ -1,96 +1,96 @@
 services:
-  api: &main_app
+  broadcast-backend-api: &main_app
     build:
       context: .
       dockerfile: ./Dockerfile
-    image: app:${app_VERSION:-latest}
+    image: qazer25/iot-broadcast-backend:${app_VERSION:-latest}
     restart: always
     env_file:
       - .env
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      rmq:
-        condition: service_healthy
+    # depends_on:
+      # db:
+      #   condition: service_healthy
     environment:
       APP_HOST: 0.0.0.0
-      APP_DB_HOST: app-db
+      APP_DB_HOST: db.backend.svc.cluster.local
       APP_DB_PORT: 5432
       APP_DB_USER: app
       APP_DB_PASS: app
       APP_DB_BASE: app
-      APP_RABBIT_HOST: app-rmq
-      APP_REDIS_HOST: app-redis
-      APP_ENABLE_TASKIQ: True
+      APP_ENABLE_TASKIQ: False
+      APP_ENABLE_SQLITE: False
     ports:
       - "8000:8000"
-  taskiq-worker:
-    <<: *main_app
-    labels: []
-    command:
-      - taskiq
-      - worker
-      - app.tkq:broker
-    ports:
-      - "8001:8000"
+  # taskiq-worker:
+    # <<: *main_app
+    # labels: []
+    # command:
+    #   - taskiq
+    #   - worker
+    #   - app.tkq:broker
+    # ports:
+    #   - "8001:8000"
 
-  db:
-    image: postgres:16.3-bullseye
-    hostname: app-db
-    environment:
-      POSTGRES_PASSWORD: "app"
-      POSTGRES_USER: "app"
-      POSTGRES_DB: "app"
-    volumes:
-      - app-db-data:/var/lib/postgresql/data
-    restart: always
-    healthcheck:
-      test: pg_isready -U app
-      interval: 2s
-      timeout: 3s
-      retries: 40
+  # db:
+  #   image: postgres:16.3-bullseye
+  #   hostname: app-db
+  #   environment:
+  #     POSTGRES_PASSWORD: "app"
+  #     POSTGRES_USER: "app"
+  #     POSTGRES_DB: "app"
+  #   volumes:
+  #     - app-db-data:/var/lib/postgresql/data
+  #   restart: always
+  #   healthcheck:
+  #     test: pg_isready -U app
+  #     interval: 2s
+  #     timeout: 3s
+  #     retries: 40
+  #   ports:
+  #     - "5432:5432"
 
-  migrator:
-    image: app:${app_VERSION:-latest}
-    restart: "no"
-    command: piccolo migrations forwards all
-    environment:
-      app_DB_HOST: app-db
-      app_DB_PORT: 5432
-      app_DB_USER: app
-      app_DB_PASS: app
-      app_DB_BASE: app
-      PICCOLO_CONF: "app.piccolo_conf"
-    depends_on:
-      db:
-        condition: service_healthy
-  redis:
-    image: bitnami/redis:6.2.5
-    hostname: "app-redis"
-    restart: always
-    environment:
-      ALLOW_EMPTY_PASSWORD: "yes"
-    healthcheck:
-      test: redis-cli ping
-      interval: 1s
-      timeout: 3s
-      retries: 50
-  rmq:
-    image: rabbitmq:3.9.16-alpine
-    hostname: "app-rmq"
-    restart: always
-    environment:
-      RABBITMQ_DEFAULT_USER: "guest"
-      RABBITMQ_DEFAULT_PASS: "guest"
-      RABBITMQ_DEFAULT_VHOST: "/"
-    healthcheck:
-      test: rabbitmq-diagnostics check_running -q
-      interval: 3s
-      timeout: 3s
-      retries: 50
-
-volumes:
-  app-db-data:
-    name: app-db-data
+#   broadcast-backend-migrator:
+#     image: qazer25/iot-broadcast-backend:${app_VERSION:-latest}
+#     restart: "no"
+#     command: piccolo migrations forwards all
+#     environment:
+#       app_DB_HOST: app-db
+#       app_DB_PORT: 5432
+#       app_DB_USER: app
+#       app_DB_PASS: app
+#       app_DB_BASE: app
+#       PICCOLO_CONF: "app.piccolo_conf"
+#     depends_on:
+#       db:
+#         condition: service_healthy
+#   redis:
+#     image: bitnami/redis:6.2.5
+#     hostname: "app-redis"
+#     restart: always
+#     environment:
+#       ALLOW_EMPTY_PASSWORD: "yes"
+#     healthcheck:
+#       test: redis-cli ping
+#       interval: 1s
+#       timeout: 3s
+#       retries: 50
+#     ports:
+#       - "6379:6379"
+#   rmq:
+#     image: rabbitmq:3.9.16-alpine
+#     hostname: "app-rmq"
+#     restart: always
+#     environment:
+#       RABBITMQ_DEFAULT_USER: "guest"
+#       RABBITMQ_DEFAULT_PASS: "guest"
+#       RABBITMQ_DEFAULT_VHOST: "/"
+#     healthcheck:
+#       test: rabbitmq-diagnostics check_running -q
+#       interval: 3s
+#       timeout: 3s
+#       retries: 50
+#     ports:
+#       - "5672:5672"
+# volumes:
+#   app-db-data:
+#     name: app-db-data
