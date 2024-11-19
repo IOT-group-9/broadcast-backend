@@ -10,10 +10,10 @@ APP_CONFIG = AppConfig(
     migrations_folder_path=str(CURRENT_DIRECTORY / "migrations"),
     table_classes=table_finder(
         modules=[
-            "app.db.models.dummy_model",
-            "app.db.models.display_model",
-            "app.db.models.map_model",
-            "app.db.models.parking_place_model",
+            # "app.db.models.dummy_model",
+            # "app.db.models.display_model",
+            # "app.db.models.map_model",
+            "app.db.models.models",
         ],
     ),
     migration_dependencies=[],
