@@ -13,6 +13,8 @@ APP_ROOT = Path(__file__).parent.parent
 origins = [
     "http://localhost",
     "http://localhost:3000",
+    "https://fedoradashboard.relentlessadmin.org",
+    "https://fedoraapi.relentlessadmin.org"
 ]
 
 def get_app() -> FastAPI:
