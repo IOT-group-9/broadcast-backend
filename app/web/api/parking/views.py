@@ -1,9 +1,21 @@
 import logging
 from fastapi import APIRouter, HTTPException
 from app.db.models.models import Map, MapSlot, ParkingPlace
-
+from piccolo_api.crud.endpoints import PiccoloCRUD
+from piccolo_api.fastapi.endpoints import FastAPIWrapper
 logging.basicConfig(level=logging.INFO)
 parking_router = APIRouter()
+
+# CRUD endpoints for map
+FastAPIWrapper(
+    root_url="/map",
+    fastapi_app=parking_router,
+    piccolo_crud=PiccoloCRUD(
+        table=Map,
+        read_only=False,
+    ),
+)
+
 
 @parking_router.get("/places/{parking_place_id}/status")
 async def get_parking_status(parking_place_id: int):
