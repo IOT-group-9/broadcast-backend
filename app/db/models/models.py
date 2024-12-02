@@ -3,6 +3,7 @@ from piccolo.columns import Varchar, Boolean, ForeignKey, Integer
 
 class Arduino(Table):
     ip_address = Varchar(unique=True, index=True)
+    device_id = Varchar()
 
 class ParkingPlace(Table):
     location = Varchar()
