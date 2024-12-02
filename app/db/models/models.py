@@ -23,7 +23,7 @@ class MapSlot(Table):
     x2 = Integer()
     y2 = Integer()
     arduino = ForeignKey(references=Arduino, null=True)
-    occupied = Boolean(default=False)
+    occupied = Varchar()
 
 class Display(Table):
     connection = Varchar()  # or whatever type connection should be
