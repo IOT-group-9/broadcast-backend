@@ -7,6 +7,9 @@ services:
     restart: always
     env_file:
       - .env
+    labels:
+      kompose.hpa.replicas.min: 1
+      kompose.hpa.replicas.max: 5
     # depends_on:
       # db:
       #   condition: service_healthy
